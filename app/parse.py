@@ -84,16 +84,10 @@ def get_all_products() -> None:
         for element, rating in zip(info, ratings):
             title_attribute = element.find_element(By.CSS_SELECTOR, "a[title]")
             title = title_attribute.get_attribute("title")
-            try:
-                price = float(
-                    element.find_element(
-                        By.TAG_NAME, "span"
-                    ).text.replace("$", ""))
-            except NoSuchElementException:
-                price = float(
-                    element.find_element(
-                        By.CLASS_NAME, "price"
-                    ).text.replace("$", ""))
+            price = float(
+                element.find_element(
+                    By.CLASS_NAME, "price"
+                ).text.replace("$", ""))
             text = element.find_element(By.TAG_NAME, "p").text
 
             count_reviews = rating.find_element(By.CLASS_NAME, "review-count")
@@ -116,6 +110,7 @@ def get_all_products() -> None:
 
         filename = url_to_csv_name(url)
         write_csv(filename, result)
+    driver.quit()
 
 
 if __name__ == "__main__":
