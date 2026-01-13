@@ -55,62 +55,68 @@ def write_csv(filename: str, text: list) -> None:
 
 
 def get_all_products() -> None:
-    for url in URLS:
-        result = []
-        driver.get(url)
-        try:
-            button = driver.find_element(By.CLASS_NAME, "btn")
-        except NoSuchElementException:
-            button = None
+    cookie = driver.find_element(By.CLASS_NAME, "acceptCookies")
+    cookie.click()
+    try:
+        for url in URLS:
+            result = []
+            driver.get(url)
+            try:
+                button = driver.find_element(By.CLASS_NAME, "btn")
+            except NoSuchElementException:
+                button = None
 
-        WebDriverWait(driver, 10).until(
-            ec.presence_of_all_elements_located((
-                By.CLASS_NAME, "caption")))
-        if button:
-            while True:
-                button.click()
-                time.sleep(2)
-                try:
-                    button_style = driver.find_element(
-                        By.CSS_SELECTOR, "a[style]"
-                    )
-                except NoSuchElementException:
-                    continue
-                if button_style:
-                    break
-        info = driver.find_elements(By.CLASS_NAME, "caption")
-        ratings = driver.find_elements(By.CLASS_NAME, "ratings")
+            WebDriverWait(driver, 10).until(
+                ec.presence_of_all_elements_located((
+                    By.CLASS_NAME, "caption")))
+            if button:
+                while True:
+                    button.click()
+                    time.sleep(2)
+                    try:
+                        button_style = driver.find_element(
+                            By.CSS_SELECTOR, "a[style]"
+                        )
+                    except NoSuchElementException:
+                        continue
+                    if button_style:
+                        break
+            info = driver.find_elements(By.CLASS_NAME, "caption")
+            ratings = driver.find_elements(By.CLASS_NAME, "ratings")
 
-        for element, rating in zip(info, ratings):
-            title_attribute = element.find_element(By.CSS_SELECTOR, "a[title]")
-            title = title_attribute.get_attribute("title")
-            price = float(
-                element.find_element(
-                    By.CLASS_NAME, "price"
-                ).text.replace("$", ""))
-            text = element.find_element(By.TAG_NAME, "p").text
+            for element, rating in zip(info, ratings):
+                title_attribute = element.find_element(By.CSS_SELECTOR, "a[title]")
+                title = title_attribute.get_attribute("title")
+                price = float(
+                    element.find_element(
+                        By.CLASS_NAME, "price"
+                    ).text.replace("$", ""))
+                text = element.find_element(By.TAG_NAME, "p").text
 
-            count_reviews = rating.find_element(By.CLASS_NAME, "review-count")
+                count_reviews = rating.find_element(By.CLASS_NAME, "review-count")
 
-            reviews = count_reviews.find_element(By.TAG_NAME, "span").text
+                reviews = count_reviews.find_element(By.TAG_NAME, "span").text
 
-            stars_list = rating.find_elements(By.CLASS_NAME, "ws-icon")
-            stars = len(stars_list)
+                stars_list = rating.find_elements(By.CLASS_NAME, "ws-icon")
+                stars = len(stars_list)
 
-            product = Product(title, text, price, stars, reviews)
+                product = Product(title, text, price, stars, reviews)
 
-            result.append(
-                {"title": product.title,
-                 "description": product.description,
-                 "price": product.price,
-                 "rating": product.rating,
-                 "num_of_reviews": product.num_of_reviews
-                 }
-            )
+                result.append(
+                    {"title": product.title,
+                     "description": product.description,
+                     "price": product.price,
+                     "rating": product.rating,
+                     "num_of_reviews": product.num_of_reviews
+                     }
+                )
 
-        filename = url_to_csv_name(url)
-        write_csv(filename, result)
-    driver.quit()
+            filename = url_to_csv_name(url)
+            write_csv(filename, result)
+    except Exception as e:
+        print(e)
+    finally:
+        driver.quit()
 
 
 if __name__ == "__main__":
