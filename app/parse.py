@@ -55,13 +55,14 @@ def write_csv(filename: str, text: list) -> None:
 
 
 def get_all_products() -> None:
-    cookie = driver.find_element(By.CLASS_NAME, "acceptCookies")
-    cookie.click()
+
     try:
         for url in URLS:
             result = []
             driver.get(url)
             try:
+                cookie = driver.find_element(By.CLASS_NAME, "acceptCookies")
+                cookie.click()
                 button = driver.find_element(By.CLASS_NAME, "btn")
             except NoSuchElementException:
                 button = None
